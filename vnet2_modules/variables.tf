@@ -43,3 +43,8 @@ variable "pass" {
   type = string
   default = "Password@143"
 }
+
+variable "hub_vnet_id" {
+  type = string
+  
+}

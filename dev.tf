@@ -20,6 +20,7 @@ module "module_vnet2" {
   private_subnet_address = "10.3.2.0/24"
   resource_group_location = "westeurope"
   resource_group_name_prefix = "vnet2_rg"
+  hub_vnet_id = module.module_hub.vnet_id
 }   
 
 module "module_hub" {

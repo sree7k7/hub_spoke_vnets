@@ -148,7 +148,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
 
 # # ---- vpc peering between hub and spoke vnet1 ----
 resource "azurerm_virtual_network_peering" "hub_to_spoke" {
-  name                         = "hub-to-spoke"
+  name                         = "hub-to-spokeVnet1"
   resource_group_name          = azurerm_resource_group.rg.name
   virtual_network_name         = azurerm_virtual_network.vnet_work.name
   remote_virtual_network_id    = var.vnet1_id
@@ -159,7 +159,7 @@ resource "azurerm_virtual_network_peering" "hub_to_spoke" {
 
 # # ---- vpc peering between hub and spoke vnet2 ----
 resource "azurerm_virtual_network_peering" "hub_to_spoke2" {
-  name                         = "hub-to-spoke2"
+  name                         = "hub-to-spokeVnet2"
   resource_group_name          = azurerm_resource_group.rg.name
   virtual_network_name         = azurerm_virtual_network.vnet_work.name
   remote_virtual_network_id    = var.vnet2_id
