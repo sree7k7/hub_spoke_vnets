@@ -8,7 +8,7 @@ Peering happens between hub to vnet1, hub to vent2
 
 ![alt text](<pics/Untitled picture.png>)
 
-- Linux VM's are in private subnet
+- Linux Ubuntu VM's are in private subnet
 
 ## Execution
 
