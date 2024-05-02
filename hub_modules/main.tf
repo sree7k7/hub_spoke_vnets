@@ -75,41 +75,41 @@ resource "azurerm_network_security_group" "nsg" {
   }
 }
 
-# Create public IPs
-resource "azurerm_public_ip" "public_ip" {
-  name                = "PublicIp"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Dynamic"
-}
-# Create network interface
-resource "azurerm_network_interface" "public_nic" {
-  name                = "NIC"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+# # Create public IPs
+# resource "azurerm_public_ip" "public_ip" {
+#   name                = "PublicIp"
+#   location            = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
+#   allocation_method   = "Dynamic"
+# }
+# # Create network interface
+# resource "azurerm_network_interface" "public_nic" {
+#   name                = "NIC"
+#   location            = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
 
-  ip_configuration {
-    name                          = "nic_config"
-    subnet_id                     = azurerm_subnet.vnet_public_subnet.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public_ip.id
-  }
-}
+#   ip_configuration {
+#     name                          = "nic_config"
+#     subnet_id                     = azurerm_subnet.vnet_public_subnet.id
+#     private_ip_address_allocation = "Dynamic"
+#     public_ip_address_id          = azurerm_public_ip.public_ip.id
+#   }
+# }
 
 # Connect the security group to the network interface (NIC)
-resource "azurerm_network_interface_security_group_association" "connect_nsg_to_nic" {
-  network_interface_id      = azurerm_network_interface.public_nic.id
-  network_security_group_id = azurerm_network_security_group.nsg.id
-}
+# resource "azurerm_network_interface_security_group_association" "connect_nsg_to_nic" {
+#   network_interface_id      = azurerm_network_interface.public_nic.id
+#   network_security_group_id = azurerm_network_security_group.nsg.id
+# }
 
 # --- linux vm ---
 
-resource "azurerm_public_ip" "pip" {
-  name                = "${var.vm_name}-pip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  allocation_method   = "Dynamic"
-}
+# resource "azurerm_public_ip" "pip" {
+#   name                = "${var.vm_name}-pip"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   location            = azurerm_resource_group.rg.location
+#   allocation_method   = "Dynamic"
+# }
 
 resource "azurerm_network_interface" "vm_nic" {
   name                = "${var.vm_name}-nic"
@@ -117,9 +117,9 @@ resource "azurerm_network_interface" "vm_nic" {
   location            = azurerm_resource_group.rg.location
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.vnet_public_subnet.id
+    subnet_id                     = azurerm_subnet.vnet_private_subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.pip.id
+    # public_ip_address_id          = azurerm_public_ip.pip.id
   }
 }
 
@@ -133,7 +133,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   disable_password_authentication = false
   computer_name                   = var.vm_name
   network_interface_ids           = [azurerm_network_interface.vm_nic.id]
-  depends_on                      = [azurerm_public_ip.pip]
+  # depends_on                      = [azurerm_public_ip.pip]
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
