@@ -214,7 +214,7 @@ resource "azurerm_route_table" "vnet2_route_table" {
 
   route {
     name                   = "vnet2_route_table"
-    address_prefix         = "0.0.0.0/0"
+    address_prefix         = "10.2.0.0/16"
     next_hop_type          = "VirtualAppliance"
     next_hop_in_ip_address = "10.1.2.4"
 }

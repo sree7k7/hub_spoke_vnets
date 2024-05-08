@@ -10,6 +10,7 @@ module "module_vnet1" {
   resource_group_location = "northeurope"
   resource_group_name_prefix = "vnet1_rg"
   hub_vnet_id = module.module_hub.vnet_id
+  # spoke2_vnet_cidr = "10.2.0.0/16"
 }
 
 module "module_vnet2" {

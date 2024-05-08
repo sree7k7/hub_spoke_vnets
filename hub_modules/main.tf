@@ -153,20 +153,21 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
     sku       = "16.04-LTS"
     version   = "latest"
   }
+  custom_data = filebase64("${path.module}/cloud-init.sh")
   boot_diagnostics {
     # enabled     = true
    storage_account_uri = null
   }
-  provisioner "remote-exec" {
-    inline = [ 
-      "sudo sysctl -w net.ipv4.ip_forward=1"
-    ]
-  connection {
-    host      = azurerm_network_interface.vm_nic.private_ip_address
-    user      = self.admin_username
-    password  = self.admin_password
-    }
-  }
+  # provisioner "remote-exec" {
+  #   inline = [ 
+  #     "sudo sysctl -w net.ipv4.ip_forward=1"
+  #   ]
+  # connection {
+  #   host      = self.public_ip_address
+  #   user      = self.admin_username
+  #   password  = self.admin_password
+  #   }
+  # }
 
 }
 
