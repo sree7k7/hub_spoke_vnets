@@ -18,6 +18,14 @@ resource "azurerm_virtual_network" "vnet_work" {
   resource_group_name = azurerm_resource_group.rg.name
 }
 
+# # ---- create RouteServerSubnet ----
+resource "azurerm_subnet" "vnet_routeserver_subnet" {
+  name                 = var.vnet_config["routeserver_subnet"]
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet_work.name
+  address_prefixes     = ["${var.routeserver_subnet_address}"]
+}
+
 # Create public subnet
 resource "azurerm_subnet" "vnet_public_subnet" {
   name                 = var.vnet_config["public_subnet"]
@@ -56,7 +64,7 @@ resource "azurerm_network_security_group" "nsg" {
     priority                   = 1002
     direction                  = "Inbound"
     access                     = "Allow"
-    protocol                   = "TCP"
+    protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "80"
     source_address_prefix      = "*"
@@ -67,7 +75,7 @@ resource "azurerm_network_security_group" "nsg" {
     priority                   = 1003
     direction                  = "Inbound"
     access                     = "Allow"
-    protocol                   = "TCP"
+    protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "3389"
     source_address_prefix      = "*"
@@ -166,4 +174,24 @@ resource "azurerm_virtual_network_peering" "hub_to_spoke2" {
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
   allow_gateway_transit        = true
+}
+
+# # ---- create route server ----
+
+resource "azurerm_public_ip" "routerserver-pip" {
+  name                = "routerserver-pip"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+resource "azurerm_route_server" "routerserver" {
+  name                             = "routerserver"
+  resource_group_name              = azurerm_resource_group.rg.name
+  location                         = azurerm_resource_group.rg.location
+  sku                              = "Standard"
+  public_ip_address_id             = azurerm_public_ip.routerserver-pip.id
+  subnet_id                        = azurerm_subnet.vnet_routeserver_subnet.id
+  branch_to_branch_traffic_enabled = true
 }

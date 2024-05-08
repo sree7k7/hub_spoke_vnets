@@ -29,6 +29,7 @@ module "module_hub" {
   vnet_cidr = "10.1.0.0/16"
   public_subnet_address = "10.1.1.0/24"
   private_subnet_address = "10.1.2.0/24"
+  routeserver_subnet_address = "10.1.3.0/24"
   resource_group_location = "centralindia"
   resource_group_name_prefix = "hub_rg"
   vnet1_id = module.module_vnet1.vnet_id

@@ -13,7 +13,8 @@ variable "vnet_config" {
     type = map(string)
     default = {
       public_subnet = "PublicSubnet"      
-      private_subnet = "PrivateSubnet"      
+      private_subnet = "PrivateSubnet"
+      routeserver_subnet = "RouteServerSubnet"      
     }
 }
 variable "vnet_cidr" {
@@ -28,6 +29,9 @@ variable "private_subnet_address" {
   type = string
 }
 
+variable "routeserver_subnet_address" {
+  type = string
+}
 
 variable "vm_name" {
   type = string
