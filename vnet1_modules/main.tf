@@ -141,8 +141,14 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "16.04-LTS"
+    sku       = "18.04-LTS"
     version   = "latest"
+  }
+
+  # secure_boot_enabled = true
+  boot_diagnostics {
+    # enabled     = true
+   storage_account_uri = null
   }
 
 # provisioner "file" {
@@ -190,5 +196,27 @@ resource "azurerm_virtual_network_peering" "vnet1_to_hub" {
     virtual_network_name         = azurerm_virtual_network.vnet_work.name
     remote_virtual_network_id    = var.hub_vnet_id
     allow_virtual_network_access = true
-    allow_forwarded_traffic       = true
+    allow_forwarded_traffic      = true
+    allow_gateway_transit        = true
     }
+
+# Create a route table in the vnet1 spoke network
+
+resource "azurerm_route_table" "vnet1_route_table" {
+  name                = "route_table"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  route {
+    name                   = "vnet1_route"
+    address_prefix         = "0.0.0.0/0"
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = "10.1.2.4"
+}
+}
+
+# # associate the route table with the subnet
+resource "azurerm_subnet_route_table_association" "vnet1_subnet_association" {
+  subnet_id      = azurerm_subnet.vnet_private_subnet.id
+  route_table_id = azurerm_route_table.vnet1_route_table.id
+}

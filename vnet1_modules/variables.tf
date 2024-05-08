@@ -31,7 +31,7 @@ variable "private_subnet_address" {
 
 variable "vm_name" {
   type = string
-  default = "ubuntu-vm"
+  default = "ubuntu-vm1"
 }
 
 variable "user" {

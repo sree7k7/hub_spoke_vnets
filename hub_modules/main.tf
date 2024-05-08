@@ -123,6 +123,7 @@ resource "azurerm_network_interface" "vm_nic" {
   name                = "${var.vm_name}-nic"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
+  enable_ip_forwarding = true
   ip_configuration {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.vnet_private_subnet.id
@@ -152,6 +153,21 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
     sku       = "16.04-LTS"
     version   = "latest"
   }
+  boot_diagnostics {
+    # enabled     = true
+   storage_account_uri = null
+  }
+  provisioner "remote-exec" {
+    inline = [ 
+      "sudo sysctl -w net.ipv4.ip_forward=1"
+    ]
+  connection {
+    host      = azurerm_network_interface.vm_nic.private_ip_address
+    user      = self.admin_username
+    password  = self.admin_password
+    }
+  }
+
 }
 
 # # ---- vpc peering between hub and spoke vnet1 ----
@@ -178,20 +194,20 @@ resource "azurerm_virtual_network_peering" "hub_to_spoke2" {
 
 # # ---- create route server ----
 
-resource "azurerm_public_ip" "routerserver-pip" {
-  name                = "routerserver-pip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  allocation_method   = "Static"
-  sku                 = "Standard"
-}
+# resource "azurerm_public_ip" "routerserver-pip" {
+#   name                = "routerserver-pip"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   location            = azurerm_resource_group.rg.location
+#   allocation_method   = "Static"
+#   sku                 = "Standard"
+# }
 
-resource "azurerm_route_server" "routerserver" {
-  name                             = "routerserver"
-  resource_group_name              = azurerm_resource_group.rg.name
-  location                         = azurerm_resource_group.rg.location
-  sku                              = "Standard"
-  public_ip_address_id             = azurerm_public_ip.routerserver-pip.id
-  subnet_id                        = azurerm_subnet.vnet_routeserver_subnet.id
-  branch_to_branch_traffic_enabled = true
-}
+# resource "azurerm_route_server" "routerserver" {
+#   name                             = "routerserver"
+#   resource_group_name              = azurerm_resource_group.rg.name
+#   location                         = azurerm_resource_group.rg.location
+#   sku                              = "Standard"
+#   public_ip_address_id             = azurerm_public_ip.routerserver-pip.id
+#   subnet_id                        = azurerm_subnet.vnet_routeserver_subnet.id
+#   branch_to_branch_traffic_enabled = true
+# }

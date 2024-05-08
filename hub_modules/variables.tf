@@ -35,7 +35,7 @@ variable "routeserver_subnet_address" {
 
 variable "vm_name" {
   type = string
-  default = "ubuntu-vm"
+  default = "ubuntu-Hub-vm"
 }
 
 variable "user" {

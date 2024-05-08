@@ -115,10 +115,13 @@ resource "azurerm_network_interface" "vm_nic" {
   name                = "${var.vm_name}-nic"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
+  enable_ip_forwarding = true
   ip_configuration {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.vnet_private_subnet.id
     private_ip_address_allocation = "Dynamic"
+    # enable ip forwarding
+
     # public_ip_address_id          = azurerm_public_ip.pip.id
   }
 }
@@ -143,6 +146,10 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
     offer     = "UbuntuServer"
     sku       = "16.04-LTS"
     version   = "latest"
+  }
+  boot_diagnostics {
+    # enabled     = true
+   storage_account_uri = null
   }
 
 # provisioner "file" {
@@ -188,11 +195,33 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
 
 # data "azurerm_client_config" "current" {}
 
-resource "azurerm_virtual_network_peering" "vnet1_to_hub" {
+resource "azurerm_virtual_network_peering" "vnet2_to_hub" {
     name                         = "vnet1-to-hub"
     resource_group_name          = azurerm_resource_group.rg.name
     virtual_network_name         = azurerm_virtual_network.vnet_work.name
     remote_virtual_network_id    = var.hub_vnet_id
     allow_virtual_network_access = true
-    allow_forwarded_traffic       = true
+    allow_forwarded_traffic      = true
+    allow_gateway_transit        = true
     }
+
+# Create a route table in the vnet2 spoke network
+
+resource "azurerm_route_table" "vnet2_route_table" {
+  name                = "vnet2_route_table"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  route {
+    name                   = "vnet2_route_table"
+    address_prefix         = "0.0.0.0/0"
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = "10.1.2.4"
+}
+}
+
+# # associate the route table with the subnet
+resource "azurerm_subnet_route_table_association" "vnet2_subnet_association" {
+  subnet_id      = azurerm_subnet.vnet_private_subnet.id
+  route_table_id = azurerm_route_table.vnet2_route_table.id
+}
